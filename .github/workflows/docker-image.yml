@@ -3,7 +3,7 @@ name: Docker Image CI
 on:
   workflow_dispatch:
   schedule:
-  - cron: '05 09 * * 3' # 2:30 PM IST on wednesdays.  
+  - cron: '30 9 * * 3' # 3:00 PM IST on wednesdays.  
 
 jobs:
 
