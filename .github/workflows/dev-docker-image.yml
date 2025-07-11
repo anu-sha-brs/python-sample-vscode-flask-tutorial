@@ -2,15 +2,6 @@ name: Dev Branch Docker Build
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        default: 'development'
-        type: string
-      debug:
-        description: 'Enable debug mode'
-        type: boolean
-        default: false
 
 jobs:
   dev-build:
