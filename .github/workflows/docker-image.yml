@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
   - cron: '30 9 * * 3' # 3:00 PM IST on wednesdays
-  - cron: '*/5 * * * *' # 9:00 PM IST on saturdays (15:00 UTC = 20:30 IST)
+  - cron: '00 8 * * 5' # 1:30 PM IST on fridays (15:00 UTC = 20:30 IST)
 
 jobs:
 
@@ -26,20 +26,36 @@ jobs:
 
   alternate-build:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '*/5 * * * *'
+    if: github.event.schedule == '00 8 * * 5'
+    env:
+      DEV_EX: true
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Check if dev branch exists
+      id: devcheck
+      run: |
+        if git ls-remote --heads origin dev | grep -q dev; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Checkout dev branch
+      if: steps.devcheck.outputs.exists == 'true'
+      uses: actions/checkout@v4
       with:
         ref: dev
       continue-on-error: true
-    - name: Fallback to main branch if dev doesn't exist
-      if: failure()
+    - name: Checkout main branch
+      if: steps.devcheck.outputs.exists == 'false'
       uses: actions/checkout@v4
     - name: Build the Docker image (Alternate)
-      run: docker build . --file Dockerfile --tag my-image-name-alt:$(date +%s)
+      env:
+        TIMESTAMP: ${{ github.run_number }}
+      run: docker build . --file Dockerfile --tag my-image-name-alt:${{ env.TIMESTAMP }}
     - name: Save Docker image (Alternate)
-      run: docker save my-image-name-alt:$(date +%s) -o docker-image-alt.tar
+      env:
+        TIMESTAMP: ${{ github.run_number }}
+      run: docker save my-image-name-alt:${{ env.TIMESTAMP }} -o docker-image-alt.tar
     - name: Upload Docker image artifact (Alternate)
       uses: actions/upload-artifact@v4.6.2
       with:
