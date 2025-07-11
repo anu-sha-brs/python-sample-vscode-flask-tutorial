@@ -3,12 +3,12 @@ name: Branch Caller Workflow
 on:
   workflow_dispatch:
   schedule:
-  - cron: '00 10 * * 5' # Every Monday at 12:00 PM UTC
+  - cron: '07 10 * * 5' # Every Monday at 12:00 PM UTC
 
 jobs:
   call-dev-branch-workflow:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '00 8 * * 5'
+    if: github.event.schedule == '10 10 * * 5'
     
     steps:
     - name: Call workflow on dev branch
@@ -19,7 +19,7 @@ jobs:
           await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            workflow_id: 'docker-image.yml',
+            workflow_id: 'dev-docker-image.yml',
             ref: 'dev'
           });
 
@@ -36,7 +36,7 @@ jobs:
           await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            workflow_id: 'docker-image.yml',
+            workflow_id: 'dev-docker-image.yml',
             ref: 'dev',
             inputs: {
               environment: 'staging',
