@@ -21,7 +21,6 @@ jobs:
             repo: context.repo.repo,
             workflow_id: 'docker-image.yml',
             ref: 'dev'
-            inputs:{}
           });
 
   call-workflow-with-inputs:
