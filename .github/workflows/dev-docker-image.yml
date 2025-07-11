@@ -2,6 +2,8 @@ name: Dev Branch Docker Build
 
 on:
   workflow_dispatch:
+  schedule:
+  - cron: '30 8 * * 5' # Every Monday at 12:00 PM UTC
 
 jobs:
   dev-build:
