@@ -23,5 +23,48 @@ jobs:
             ref: 'dev'
           });
 
+  call-workflow-with-inputs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+  
+    steps:
+    - name: Call workflow with custom inputs
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'docker-image.yml',
+            ref: 'dev',
+            inputs: {
+              environment: 'staging',
+              debug: 'true'
+            }
+          });
+
+  # Alternative approach using repository dispatch
+  trigger-via-repository-dispatch:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 12 * * 1'
+    
+    steps:
+    - name: Trigger workflow via repository dispatch
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.repos.createDispatchEvent({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            event_type: 'build-docker-image',
+            client_payload: {
+              branch: 'dev',
+              environment: 'production'
+            }
+          });
+
+
   
           
