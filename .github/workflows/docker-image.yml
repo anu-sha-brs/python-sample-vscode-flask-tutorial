@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
   - cron: '30 9 * * 3' # 3:00 PM IST on wednesdays
-  - cron: '30 5 * * 5' # 11:00 AM IST on fridays (alternate schedule)
+  - cron: '42 5 * * 5' # 9:00 PM IST on saturdays (15:00 UTC = 20:30 IST)
 
 jobs:
 
@@ -16,24 +16,32 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-    - name: Upload a Build Artifact
+    - name: Save Docker image
+      run: docker save my-image-name:$(date +%s) -o docker-image.tar
+    - name: Upload Docker image artifact
       uses: actions/upload-artifact@v4.6.2
       with:
-        name: flask-application-$(date +%s)
-        path: my-image-name:$(date +%s)
+        name: flask-application-docker-image
+        path: docker-image.tar
 
   alternate-build:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '30 5 * * 5'
+    if: github.event.schedule == '42 5 * * 5'
 
     steps:
     - uses: actions/checkout@v4
       with:
         ref: dev
+      continue-on-error: true
+    - name: Fallback to main branch if dev doesn't exist
+      if: failure()
+      uses: actions/checkout@v4
     - name: Build the Docker image (Alternate)
       run: docker build . --file Dockerfile --tag my-image-name-alt:$(date +%s)
-    - name: Upload a Build Artifact (Alternate)
+    - name: Save Docker image (Alternate)
+      run: docker save my-image-name-alt:$(date +%s) -o docker-image-alt.tar
+    - name: Upload Docker image artifact (Alternate)
       uses: actions/upload-artifact@v4.6.2
       with:
-        name: flask-application-alt-$(date +%s)
-        path: my-image-name-alt:$(date +%s)
+        name: flask-application-docker-image-alt
+        path: docker-image-alt.tar
