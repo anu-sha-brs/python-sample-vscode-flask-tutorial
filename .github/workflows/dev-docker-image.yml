@@ -2,8 +2,17 @@ name: Dev Branch Docker Build
 
 on:
   workflow_dispatch:
-  schedule:
-  - cron: '30 8 * * 5' # Every Monday at 12:00 PM UTC
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        default: 'development'
+        type: string
+      debug:
+        description: 'Enable debug mode'
+        type: boolean
+        default: false
+  repository_dispatch:
+    types: [build-docker-image]
 
 jobs:
   dev-build:
