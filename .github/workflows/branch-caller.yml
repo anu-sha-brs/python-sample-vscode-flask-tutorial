@@ -3,12 +3,12 @@ name: Branch Caller Workflow
 on:
   workflow_dispatch:
   schedule:
-  - cron: '58 10 * * 5' # Every Monday at 12:00 PM UTC
+  - cron: '05 11 * * 5' # Every Monday at 12:00 PM UTC
 
 jobs:
   call-dev-branch-workflow:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '45 10 * * 5'
+    if: github.event.schedule == '05 11 * * 5'
     
     steps:
     - name: Call workflow on dev branch
