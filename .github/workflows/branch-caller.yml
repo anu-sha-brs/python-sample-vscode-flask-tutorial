@@ -3,12 +3,12 @@ name: Branch Caller Workflow
 on:
   workflow_dispatch:
   schedule:
-  - cron: '*/5 * * * *' # Every Monday at 12:00 PM UTC
+  - cron: '15 11 * * *' # Every Monday at 12:00 PM UTC
 
 jobs:
   call-dev-branch-workflow:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '*/5 * * * *'
+    if: github.event.schedule == '15 11 * * *'
     permissions:
       actions: write
       contents: read
