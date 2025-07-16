@@ -9,6 +9,9 @@ jobs:
   call-dev-branch-workflow:
     runs-on: ubuntu-latest
     if: github.event.schedule == '15 11 * * *'
+    permissions:
+      actions: write
+      contents: read
     
     steps:
     - name: Call workflow on dev branch
