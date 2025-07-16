@@ -2,15 +2,21 @@ name: Scheduled Dev Build
 
 on:
   schedule:
-     - cron: '0 3,9,15,21 * * *'  # 4 times a day
+     - cron: '0 3 * * *'  # 1 times a day
   workflow_dispatch:
   push:
     branches:
       - dev
+  pull_request:
+    branches:
+      - dev
+    types: [closed]
 
 jobs:
   scheduled-dev-build:
     runs-on: ubuntu-latest
+    # Only run if it's not a PR, or if it's a merged PR
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     
     steps:
     - name: Checkout dev branch
@@ -20,8 +26,12 @@ jobs:
         
     - name: Display build info
       run: |
-        echo "Building from dev branch (scheduled)"
+        echo "Building from dev branch"
         echo "Triggered by: ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          echo "PR #${{ github.event.number }} merged: ${{ github.event.pull_request.title }}"
+          echo "Merged by: ${{ github.event.pull_request.merged_by.login }}"
+        fi
         echo "Current time: $(date)"
         
     - name: Build the Docker image
