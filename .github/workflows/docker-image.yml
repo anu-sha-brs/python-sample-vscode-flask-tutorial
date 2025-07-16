@@ -1,20 +1,41 @@
-name: Docker Build
+name: Dev Branch PR Build
 
 on:
   workflow_dispatch:
-  schedule:
-  - cron: '10 11 * * 5' # Every Monday at 12:00 PM UTC
-
+  pull_request:
+    branches:
+      - dev
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    branches:
+      - dev
+    types: [opened, synchronize, reopened] 
 
 jobs:
-  build:
+  dev-build:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Debug PR information
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+      run: |
+        echo "Event name: ${{ github.event_name }}"
+        echo "Target branch: ${{ github.base_ref }}"
+        echo "Source branch: ${{ github.head_ref }}"
+        echo "PR number: ${{ github.event.number }}"
+        echo "PR action: ${{ github.event.action }}"
+        
     - name: Checkout dev branch
+      if: github.event_name != 'pull_request_target' && github.event_name != 'pull_request'
       uses: actions/checkout@v4
       with:
         ref: dev
+
+    - name: Checkout PR branch
+      if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request'
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
         
     - name: Display build info
       run: |
