@@ -1,0 +1,44 @@
+name: Scheduled Dev Build
+
+on:
+  schedule:
+     - cron: '0 3,9,15,21 * * *'  # 4 times a day
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+
+jobs:
+  scheduled-dev-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout dev branch
+      uses: actions/checkout@v4
+      with:
+        ref: dev
+        
+    - name: Display build info
+      run: |
+        echo "Building from dev branch (scheduled)"
+        echo "Triggered by: ${{ github.event_name }}"
+        echo "Current time: $(date)"
+        
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image-name-dev-scheduled:$(date +%s)
+      
+    - name: Save Docker image
+      run: docker save my-image-name-dev-scheduled:$(date +%s) -o docker-image-dev-scheduled.tar
+      
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4.6.2
+      with:
+        name: flask-application-docker-image-dev-scheduled-${{ github.run_number }}
+        path: docker-image-dev-scheduled.tar
+        
+    - name: Display completion message
+      run: |
+        echo "✅ Scheduled dev branch Docker build completed successfully"
+        echo "Image built and saved as docker-image-dev-scheduled.tar"
+        echo "Artifact name: flask-application-docker-image-dev-scheduled-${{ github.run_number }}"
+    
