@@ -4,27 +4,40 @@ on:
   workflow_dispatch:
   schedule:
      - cron: '0 3,9,15,21 * * *'
+  pull_request:
+    branches:
+      - dev
+    types: [opened, synchronize, reopened]
   pull_request_target:
     branches:
       - dev
-    types: [opened, synchronize] 
+    types: [opened, synchronize, reopened] 
 
 jobs:
   dev-build:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Debug PR information
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+      run: |
+        echo "Event name: ${{ github.event_name }}"
+        echo "Target branch: ${{ github.base_ref }}"
+        echo "Source branch: ${{ github.head_ref }}"
+        echo "PR number: ${{ github.event.number }}"
+        echo "PR action: ${{ github.event.action }}"
+        
     - name: Checkout dev branch
-      if: github.event_name != 'pull_request_target'
+      if: github.event_name != 'pull_request_target' && github.event_name != 'pull_request'
       uses: actions/checkout@v4
       with:
         ref: dev
 
-    - name: Checkout dev branch for PRs
-      if: github.event_name == 'pull_request_target'
+    - name: Checkout PR branch
+      if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request'
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.head_ref }}
+        ref: ${{ github.event.pull_request.head.sha }}
         
     - name: Display build info
       run: |
